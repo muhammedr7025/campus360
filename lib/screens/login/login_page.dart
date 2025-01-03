@@ -1,10 +1,14 @@
+import 'package:campus360/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
+  final String userRole =
+      'admin'; // Hardcoded for demo, will come from Firebase later
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -16,26 +20,18 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 children: [
                   Icon(
-                    Icons.school, // Placeholder for the logo
+                    Icons.school,
                     size: 100,
-                    color: Colors.blue,
+                    color: primaryColor,
                   ),
                   SizedBox(height: 20),
                   Text(
                     'Welcome!',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                    style: titleTextStyle,
                   ),
                   Text(
                     'to Campus360',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: subtitleTextStyle,
                   ),
                 ],
               ),
@@ -71,18 +67,32 @@ class LoginPage extends StatelessWidget {
             // Login Button
             ElevatedButton(
               onPressed: () {
-                // Handle login logic
+                // Replace with Firebase login logic later
+                // Navigate to the appropriate dashboard based on userRole
+                if (userRole == 'admin') {
+                  Navigator.pushNamed(context, '/admin');
+                } else if (userRole == 'hod') {
+                  Navigator.pushNamed(context, '/hod');
+                } else if (userRole == 'staff') {
+                  Navigator.pushNamed(context, '/staff');
+                } else if (userRole == 'security') {
+                  Navigator.pushNamed(context, '/security');
+                } else if (userRole == 'student_rep') {
+                  Navigator.pushNamed(context, '/student_rep');
+                } else if (userRole == 'student') {
+                  Navigator.pushNamed(context, '/student');
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 15),
-                backgroundColor: Colors.blue,
+                backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
-                ), // Primary color
+                ),
               ),
               child: Text(
                 'Login',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: buttonTextStyle,
               ),
             ),
             SizedBox(height: 20),
@@ -95,7 +105,7 @@ class LoginPage extends StatelessWidget {
                 },
                 child: Text(
                   'Forgot Password?',
-                  style: TextStyle(color: Colors.blue),
+                  style: TextStyle(color: primaryColor),
                 ),
               ),
             ),
