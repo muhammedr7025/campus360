@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/constants.dart';
+import '../controls/iot_control_page.dart';
 import '../manage_users/manage_users_page.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -40,6 +41,10 @@ class AdminDashboard extends StatelessWidget {
               title: 'IoT Device Control',
               icon: Icons.devices,
               onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => IoTControlPage()),
+                );
                 // Navigate to IoT control page
               },
             ),

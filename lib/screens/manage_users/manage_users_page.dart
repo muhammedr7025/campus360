@@ -83,7 +83,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
       bool isEdit = false}) {
     final nameController = TextEditingController(text: name);
     final emailController = TextEditingController(text: email);
-    final departmentController = TextEditingController(text: department);
     final classIdController = TextEditingController(text: class_id);
 
     // Default values for role, department, and batch
