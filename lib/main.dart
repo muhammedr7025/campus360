@@ -1,3 +1,4 @@
+import 'package:campus360/screens/dashboard/faculty_dashboard.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'screens/login/login_page.dart';
@@ -36,11 +37,12 @@ class Campus360App extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/admin': (context) => AdminDashboard(),
-        '/hod': (context) => HODDashboard(),
+        '/hod': (context) => HodDashboard(),
         '/staff': (context) => StaffDashboard(),
         '/security': (context) => SecurityDashboard(),
         '/student_rep': (context) => StudentRepDashboard(),
         '/student': (context) => StudentDashboard(),
+        '/faculty': (context) => FacultyDashboard()
       },
       initialRoute: '/', // Initial route is the LoginPage
     );

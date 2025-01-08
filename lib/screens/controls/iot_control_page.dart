@@ -53,7 +53,7 @@ class _IoTControlPageState extends State<IoTControlPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('IoT Control - Admin Dashboard'),
+        title: Text('IoT classes list'),
         backgroundColor: primaryColor,
         actions: [
           // Add a refresh button

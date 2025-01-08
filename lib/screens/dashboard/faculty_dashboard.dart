@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../utils/constants.dart';
 
-class StudentDashboard extends StatelessWidget {
+class FacultyDashboard extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Logout function
@@ -16,7 +16,7 @@ class StudentDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Student Dashboard'),
+        title: Text('Faculty Dashboard'),
         backgroundColor: primaryColor,
         actions: [
           IconButton(
@@ -26,7 +26,7 @@ class StudentDashboard extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Text('Student Dashboard Content Here'),
+        child: Text('Faculty Dashboard Content Here'),
       ),
     );
   }

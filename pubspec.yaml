@@ -40,6 +40,7 @@ dependencies:
   firebase_messaging: 
   image_picker:
   firebase_storage:
+  cloud_functions:
 
 dev_dependencies:
   flutter_test:

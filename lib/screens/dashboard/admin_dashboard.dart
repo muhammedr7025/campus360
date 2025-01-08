@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../utils/constants.dart';
 import '../controls/iot_control_page.dart';
 import '../manage_users/manage_users_page.dart';
 
 class AdminDashboard extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Logout function
+  Future<void> _logoutUser(BuildContext context) async {
+    await _auth.signOut(); // Log out the user
+    Navigator.pushReplacementNamed(
+        context, '/'); // Navigate back to the login page
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
         backgroundColor: primaryColor,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _logoutUser(context), // Call the logout function
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

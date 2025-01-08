@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,36 +14,32 @@ class ManageUsersPage extends StatefulWidget {
 
 class _ManageUsersPageState extends State<ManageUsersPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
-  File? _image; // Changed to nullable type
+  File? _image;
 
-  // Dummy list of departments (you can replace this with your actual department data from Firestore if needed)
   final List<String> departments = ['CSE', 'ECE', 'EEE', 'IT', 'Mech'];
-
-  // Dummy list of batches (you can replace this with your actual batch data from Firestore if needed)
   final List<String> batches = ['2021', '2022', '2023', '2024'];
 
-  // Function to fetch users from Firestore
+  // Fetch users from Firestore
   Stream<List<Map<String, dynamic>>> _getUsers() {
     return _firestore
         .collection('Users')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => {
-                  'id': doc.id, // Add the document ID here
-                  'name': doc['name'],
-                  'role': doc['role'],
-                  'email': doc['email'],
-                  'department': doc['department'],
-                  'batch': doc['batch'],
-                  'class_id': doc['class_id'],
-                  'profile_pic':
-                      doc['profile_pic'], // Add the profile picture URL
-                })
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) {
+              return {
+                'id': doc.id,
+                'name': doc['name'],
+                'role': doc['role'],
+                'email': doc['email'],
+                'department': doc['department'],
+                'batch': doc['batch'],
+                'class_id': doc['class_id'],
+                'profile_pic': doc['profile_pic'],
+              };
+            }).toList());
   }
 
-  // Function to pick an image from the gallery
   Future<void> _pickImage() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
@@ -53,7 +50,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
     }
   }
 
-  // Function to upload image to Firebase Storage and get the URL
   Future<String> _uploadImage(File image) async {
     try {
       final storageRef = FirebaseStorage.instance
@@ -70,7 +66,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
     }
   }
 
-  // Function for adding or editing a user
+  // Add or Edit User
   void _showUserForm(BuildContext context,
       {String? id,
       String? name,
@@ -85,12 +81,9 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
     final emailController = TextEditingController(text: email);
     final classIdController = TextEditingController(text: class_id);
 
-    // Default values for role, department, and batch
-    String? selectedBatch =
-        batch ?? batches[0]; // Default to first batch if null
-    String? selectedDepartment =
-        department ?? departments[0]; // Default to first department if null
-    String? selectedRole = role ?? 'Student'; // Default to 'Student' if null
+    String selectedBatch = batch ?? 'None';
+    String selectedDepartment = department ?? 'None';
+    String selectedRole = role ?? 'Student';
 
     showDialog(
       context: context,
@@ -102,37 +95,31 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Full Name'),
-              ),
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Full Name')),
               TextField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-              ),
+                  controller: emailController,
+                  decoration: InputDecoration(labelText: 'Email')),
               DropdownButtonFormField<String>(
                 value: selectedDepartment,
                 decoration: InputDecoration(labelText: 'Department'),
-                items: departments.map((dept) {
+                items: ['None', ...departments].map((dept) {
                   return DropdownMenuItem<String>(
-                    value: dept,
-                    child: Text(dept),
-                  );
+                      value: dept, child: Text(dept));
                 }).toList(),
                 onChanged: (value) {
-                  selectedDepartment = value;
+                  selectedDepartment = value!;
                 },
               ),
               DropdownButtonFormField<String>(
                 value: selectedBatch,
                 decoration: InputDecoration(labelText: 'Batch'),
-                items: batches.map((batch) {
+                items: ['None', ...batches].map((batch) {
                   return DropdownMenuItem<String>(
-                    value: batch,
-                    child: Text(batch),
-                  );
+                      value: batch, child: Text(batch));
                 }).toList(),
                 onChanged: (value) {
-                  selectedBatch = value;
+                  selectedBatch = value!;
                 },
               ),
               DropdownButtonFormField<String>(
@@ -144,18 +131,16 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                   'Staff',
                   'Student',
                   'Security',
-                  'Student Rep'
+                  'Student Rep',
+                  'Hod'
                 ]
                     .map((roleOption) => DropdownMenuItem<String>(
-                          value: roleOption,
-                          child: Text(roleOption),
-                        ))
+                        value: roleOption, child: Text(roleOption)))
                     .toList(),
                 onChanged: (value) {
-                  selectedRole = value;
+                  selectedRole = value!;
                 },
               ),
-              // Display the selected profile image (check if _image is not null)
               if (_image != null)
                 Image.file(_image!, height: 150, width: 150, fit: BoxFit.cover),
               ElevatedButton(
@@ -169,43 +154,49 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               onPressed: () async {
                 String? profilePicUrl;
                 if (_image != null) {
-                  // Upload the image and get the URL
                   profilePicUrl = await _uploadImage(_image!);
                 } else {
-                  profilePicUrl =
-                      profilePic; // Retain old image URL if no new image is selected
+                  profilePicUrl = profilePic;
                 }
 
-                // Save to Firestore
-                if (isEdit) {
-                  // Update the user in Firestore using the document ID
-                  _firestore
-                      .collection('Users')
-                      .doc(id) // Use actual user ID
-                      .update({
-                    'name': nameController.text,
-                    'email': emailController.text,
-                    'role': selectedRole,
-                    'department': selectedDepartment,
-                    'batch': selectedBatch,
-                    'class_id': classIdController.text,
-                    'profile_pic':
-                        profilePicUrl, // Update the profile picture URL
-                  });
+                if (!isEdit) {
+                  try {
+                    UserCredential userCredential =
+                        await _auth.createUserWithEmailAndPassword(
+                      email: emailController.text,
+                      password: '12345678',
+                    );
+                    String userId = userCredential.user!.uid;
+
+                    await _firestore.collection('Users').doc(userId).set({
+                      'name': nameController.text,
+                      'email': emailController.text,
+                      'role': selectedRole,
+                      'department': selectedDepartment,
+                      'batch': selectedBatch,
+                      'class_id': classIdController.text,
+                      'profile_pic': profilePicUrl,
+                      'uid': userId,
+                    });
+
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    print("Error creating user: $e");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error creating user: $e")));
+                  }
                 } else {
-                  // Add new user to Firestore
-                  _firestore.collection('Users').add({
+                  _firestore.collection('Users').doc(id).update({
                     'name': nameController.text,
                     'email': emailController.text,
                     'role': selectedRole,
                     'department': selectedDepartment,
                     'batch': selectedBatch,
                     'class_id': classIdController.text,
-                    'profile_pic':
-                        profilePicUrl, // Save the profile picture URL
+                    'profile_pic': profilePicUrl,
                   });
+                  Navigator.of(context).pop();
                 }
-                Navigator.of(context).pop();
               },
               child: Text(isEdit ? 'Save Changes' : 'Add User'),
             ),
@@ -221,8 +212,8 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
     );
   }
 
-  // Function for deleting a user
-  void _deleteUser(BuildContext context, String userId) {
+  // Delete User
+  void _deleteUser(BuildContext context, String userId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -231,9 +222,18 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
           content: Text('Are you sure you want to delete this user?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _firestore.collection('Users').doc(userId).delete();
+              onPressed: () async {
+                try {
+                  await _auth.currentUser?.delete();
+                  await _firestore.collection('Users').doc(userId).delete();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('User deleted successfully!')));
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  print("Error deleting user: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error deleting user: $e')));
+                }
               },
               child: Text('Yes'),
             ),
@@ -274,7 +274,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                   backgroundColor: _getAvatarColor(users![index]['role']!),
                   backgroundImage: users[index]['profile_pic'] != null
                       ? NetworkImage(users[index]['profile_pic'])
-                      : null, // Show profile picture if available
+                      : null,
                   child: users[index]['profile_pic'] == null
                       ? Text(users[index]['name']![0])
                       : null,
@@ -289,16 +289,14 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                       onPressed: () {
                         _showUserForm(
                           context,
-                          id: users[index]
-                              ['id'], // Pass the document ID for editing
+                          id: users[index]['id'],
                           name: users[index]['name'],
                           role: users[index]['role'],
                           email: users[index]['email'],
                           department: users[index]['department'],
                           batch: users[index]['batch'],
                           class_id: users[index]['class_id'],
-                          profilePic: users[index]
-                              ['profile_pic'], // Pass the profile picture URL
+                          profilePic: users[index]['profile_pic'],
                           isEdit: true,
                         );
                       },
@@ -306,10 +304,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                     IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
-                        _deleteUser(
-                            context,
-                            users[index]
-                                ['id']!); // Pass the document ID for deletion
+                        _deleteUser(context, users[index]['id']!);
                       },
                     ),
                   ],
@@ -321,7 +316,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showUserForm(context); // Open add user dialog
+          _showUserForm(context);
         },
         child: Icon(Icons.add),
         backgroundColor: primaryColor,
@@ -340,9 +335,9 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
       case 'Admin':
         return Colors.purple;
       case 'Security':
-        return Colors.red; // Assign a unique color to the Security role
+        return Colors.red;
       case 'Student Rep':
-        return Colors.yellow; // Assign a unique color to the Student Rep role
+        return Colors.yellow;
       default:
         return Colors.grey;
     }

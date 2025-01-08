@@ -1,1 +1,43 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"campus360-eebb0","appId":"1:522244974031:android:f213db1afcb1d15c0c9eba","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"campus360-eebb0","appId":"1:522244974031:ios:72ff92002060f15d0c9eba","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"campus360-eebb0","configurations":{"android":"1:522244974031:android:f213db1afcb1d15c0c9eba","ios":"1:522244974031:ios:72ff92002060f15d0c9eba"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "campus360-eebb0",
+          "appId": "1:522244974031:android:f213db1afcb1d15c0c9eba",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "campus360-eebb0",
+          "appId": "1:522244974031:ios:72ff92002060f15d0c9eba",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "campus360-eebb0",
+          "configurations": {
+            "android": "1:522244974031:android:f213db1afcb1d15c0c9eba",
+            "ios": "1:522244974031:ios:72ff92002060f15d0c9eba"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
